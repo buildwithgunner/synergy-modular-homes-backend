@@ -17,6 +17,12 @@ Route::get('/homes/{id}', [HomeController::class, 'show']);
 Route::post('/leads', [LeadController::class, 'store']);
 
 // User auth
+Route::post('/send-otp', [AuthController::class, 'sendOtp'])
+    ->middleware('throttle:5,1');
+
+Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])
+    ->middleware('throttle:5,1');
+
 Route::post('/register', [AuthController::class, 'register'])
     ->middleware('throttle:5,1');
 
