@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\AdminAuthController;
 use App\Http\Controllers\Api\AdminSettingsController;
 use App\Http\Controllers\Api\SavedHomeController;
 use App\Http\Controllers\Api\UserController;
-
+use App\Http\Controllers\Api\PreApprovalController;
 // ===================== PUBLIC =====================
 Route::get('/homes', [HomeController::class, 'index']);
 Route::get('/homes/{id}', [HomeController::class, 'show']);
