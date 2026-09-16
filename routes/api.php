@@ -10,11 +10,15 @@ use App\Http\Controllers\Api\AdminSettingsController;
 use App\Http\Controllers\Api\SavedHomeController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\PreApprovalController;
+
 // ===================== PUBLIC =====================
 Route::get('/homes', [HomeController::class, 'index']);
 Route::get('/homes/{id}', [HomeController::class, 'show']);
 
 Route::post('/leads', [LeadController::class, 'store']);
+
+// Public submission route for pre-approval form
+Route::post('/pre-approvals', [PreApprovalController::class, 'store']);
 
 // User auth
 Route::post('/send-otp', [AuthController::class, 'sendOtp'])
@@ -32,6 +36,7 @@ Route::post('/login', [AuthController::class, 'login'])
 // Admin auth
 Route::post('/admin/login', [AdminAuthController::class, 'login'])
     ->middleware('throttle:5,1');
+
 
 // ===================== AUTHENTICATED (User + Admin token) =====================
 Route::middleware('auth:sanctum')->group(function () {
@@ -58,6 +63,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/saved-homes/{homeId}', [SavedHomeController::class, 'destroy']);
     Route::get('/saved-homes/check/{homeId}', [SavedHomeController::class, 'check']);
 
+    // Pre-approvals management (admin)
+    Route::get('/pre-approvals', [PreApprovalController::class, 'index']);
+    Route::get('/pre-approvals/{id}', [PreApprovalController::class, 'show']);
+    Route::patch('/pre-approvals/{id}/status', [PreApprovalController::class, 'updateStatus']);
+    Route::delete('/pre-approvals/{id}', [PreApprovalController::class, 'destroy']);
+
     // Admin settings
     Route::prefix('admin')->group(function () {
         Route::post('/logout', [AdminAuthController::class, 'logout']);
@@ -66,13 +77,4 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/change-password', [AdminSettingsController::class, 'changePassword']);
         Route::get('/me', [AuthController::class, 'me']);
     });
-
-    Route::post('/pre-approvals', [PreApprovalController::class, 'store']);
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/pre-approvals', [PreApprovalController::class, 'index']);
-    Route::get('/pre-approvals/{id}', [PreApprovalController::class, 'show']);
-    Route::patch('/pre-approvals/{id}/status', [PreApprovalController::class, 'updateStatus']);
-    Route::delete('/pre-approvals/{id}', [PreApprovalController::class, 'destroy']);
-});
 });
