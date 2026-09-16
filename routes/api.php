@@ -66,4 +66,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/change-password', [AdminSettingsController::class, 'changePassword']);
         Route::get('/me', [AuthController::class, 'me']);
     });
+
+    Route::post('/pre-approvals', [PreApprovalController::class, 'store']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/pre-approvals', [PreApprovalController::class, 'index']);
+    Route::get('/pre-approvals/{id}', [PreApprovalController::class, 'show']);
+    Route::patch('/pre-approvals/{id}/status', [PreApprovalController::class, 'updateStatus']);
+    Route::delete('/pre-approvals/{id}', [PreApprovalController::class, 'destroy']);
+});
 });
