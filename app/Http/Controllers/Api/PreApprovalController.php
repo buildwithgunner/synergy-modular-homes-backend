@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\PreApproval;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -10,10 +11,8 @@ use Illuminate\Support\Facades\Storage;
 class PreApprovalController extends Controller
 {
     /**
-     * Handle the incoming pre-approval submission.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * Public submission route for pre-approvals.
+     * Route: POST /api/pre-approvals
      */
     public function store(Request $request): JsonResponse
     {
@@ -50,12 +49,10 @@ class PreApprovalController extends Controller
             'signature'           => 'required|string|max:255',
         ]);
 
-        // Process proof_of_income if uploaded as files or passed as paths
         if ($request->hasFile('proof_of_income')) {
             $uploadedPaths = [];
             foreach ($request->file('proof_of_income') as $file) {
                 if ($file->isValid()) {
-                    // Stores files in storage/app/public/proofs
                     $path = $file->store('proofs', 'public');
                     $uploadedPaths[] = Storage::url($path);
                 }
@@ -63,12 +60,66 @@ class PreApprovalController extends Controller
             $validated['proof_of_income'] = $uploadedPaths;
         }
 
-        // Save to database
         $preApproval = PreApproval::create($validated);
 
         return response()->json([
             'message' => 'Pre-approval application submitted successfully.',
             'data'    => $preApproval,
         ], 201);
+    }
+
+    /**
+     * Admin: Fetch all pre-approval applications.
+     * Route: GET /api/pre-approvals
+     */
+    public function index(): JsonResponse
+    {
+        $preApprovals = PreApproval::latest()->get();
+
+        return response()->json($preApprovals);
+    }
+
+    /**
+     * Admin: Get a single pre-approval application by ID.
+     * Route: GET /api/pre-approvals/{id}
+     */
+    public function show($id): JsonResponse
+    {
+        $preApproval = PreApproval::findOrFail($id);
+
+        return response()->json($preApproval);
+    }
+
+    /**
+     * Admin: Update application status (e.g., approved, pending, rejected).
+     * Route: PATCH /api/pre-approvals/{id}/status
+     */
+    public function updateStatus(Request $request, $id): JsonResponse
+    {
+        $validated = $request->validate([
+            'status' => 'required|string|max:255',
+        ]);
+
+        $preApproval = PreApproval::findOrFail($id);
+        $preApproval->update(['status' => $validated['status']]);
+
+        return response()->json([
+            'message' => 'Pre-approval status updated successfully.',
+            'data'    => $preApproval,
+        ]);
+    }
+
+    /**
+     * Admin: Delete a pre-approval application.
+     * Route: DELETE /api/pre-approvals/{id}
+     */
+    public function destroy($id): JsonResponse
+    {
+        $preApproval = PreApproval::findOrFail($id);
+        $preApproval->delete();
+
+        return response()->json([
+            'message' => 'Pre-approval application deleted successfully.',
+        ]);
     }
 }
