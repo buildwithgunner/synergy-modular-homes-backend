@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\HomeController;
-use App\Http\Controllers\Api\LeadController;
+use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AdminAuthController;
 use App\Http\Controllers\Api\AdminSettingsController;
@@ -15,9 +15,11 @@ use App\Http\Controllers\Api\PreApprovalController;
 Route::get('/homes', [HomeController::class, 'index']);
 Route::get('/homes/{id}', [HomeController::class, 'show']);
 
-Route::post('/leads', [LeadController::class, 'store']);
+// Appointment / Lead submissions
+Route::post('/leads', [AppointmentController::class, 'store']);
+Route::post('/appointments', [AppointmentController::class, 'store']);
 
-// Public submission route for pre-approval form
+// Public pre-approval form submission
 Route::post('/pre-approvals', [PreApprovalController::class, 'store']);
 
 // User auth
@@ -45,9 +47,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/homes/{id}', [HomeController::class, 'update']);
     Route::delete('/homes/{id}', [HomeController::class, 'destroy']);
 
-    // Leads (admin)
-    Route::get('/leads', [LeadController::class, 'index']);
-    Route::patch('/leads/{id}/status', [LeadController::class, 'updateStatus']);
+    // Appointments / Leads (admin)
+    Route::get('/leads', [AppointmentController::class, 'index']);
+    Route::get('/appointments', [AppointmentController::class, 'index']);
+    Route::get('/appointments/{id}', [AppointmentController::class, 'show']);
+    Route::patch('/appointments/{id}/status', [AppointmentController::class, 'updateStatus']);
+    Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy']);
 
     // Users (admin)
     Route::get('/users', [UserController::class, 'index']);
@@ -69,12 +74,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/pre-approvals/{id}/status', [PreApprovalController::class, 'updateStatus']);
     Route::delete('/pre-approvals/{id}', [PreApprovalController::class, 'destroy']);
 
-    // Admin settings
+    // Admin settings & alias routes
     Route::prefix('admin')->group(function () {
         Route::post('/logout', [AdminAuthController::class, 'logout']);
         Route::get('/settings', [AdminSettingsController::class, 'show']);
         Route::put('/settings', [AdminSettingsController::class, 'update']);
         Route::put('/change-password', [AdminSettingsController::class, 'changePassword']);
         Route::get('/me', [AuthController::class, 'me']);
+
+        // Admin aliases for appointments
+        Route::get('/appointments', [AppointmentController::class, 'index']);
+        Route::get('/appointments/{id}', [AppointmentController::class, 'show']);
+        Route::patch('/appointments/{id}/status', [AppointmentController::class, 'updateStatus']);
+        Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy']);
     });
 });
