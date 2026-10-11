@@ -14,6 +14,7 @@ class PreApproval extends Model
         'last_name',
         'middle_name',
         'dob',
+        'sex',
         'ssn',
         'email',
         'cell_phone',
